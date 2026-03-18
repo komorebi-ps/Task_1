@@ -5,49 +5,94 @@ from praktikum.ingredient import Ingredient
 from praktikum.database import Database
 from praktikum.ingredient_types import INGREDIENT_TYPE_SAUCE, INGREDIENT_TYPE_FILLING
 from unittest.mock import Mock, patch
+from data import (
+    SPICY_SAUCE, 
+    TEST_FILLING, 
+    TEST_SAUCE, 
+    STONE_BUN, 
+    BLACK_BUN,
+    TEST_BUN_1,
+    TEST_BUN_2,
+    TEST_BUN_3,
+    TEST_INGREDIENT_1,
+    TEST_INGREDIENT_2
+)
 
 class TestBun:
     
-    # Создание булки с параметризацией
+    # Получение названия булки
     @pytest.mark.parametrize("name, price", [
-        ("Булка с кунжутом", 850),
-        ("Бриошь", 930),
-        ("Цельнозерновая", 750)
+        (TEST_BUN_1['name'], TEST_BUN_1['price']),
+        (TEST_BUN_2['name'], TEST_BUN_2['price']),
+        (TEST_BUN_3['name'], TEST_BUN_3['price'])
     ])
-    def test_bun_create(self, name, price):
+    def test_bun_get_name(self, name, price):
         bun = Bun(name, price)
         assert bun.get_name() == name
-        assert bun.get_price() == price
-    
-    # Получение названия булки
-    def test_bun_get_name(self, bun):
-        assert bun.get_name() == "Черная булка"
-    
+
     # Получение цены булки
-    def test_bun_get_price(self, bun):
-        assert bun.get_price() == 900
+    @pytest.mark.parametrize("name, price", [
+        (TEST_BUN_1['name'], TEST_BUN_1['price']),
+        (TEST_BUN_2['name'], TEST_BUN_2['price']),
+        (TEST_BUN_3['name'], TEST_BUN_3['price'])
+    ])
+    def test_bun_get_price(self, name, price):
+        bun = Bun(name, price)
+        assert bun.get_price() == price
+
 
 
 class TestDatabase:
     
-    def test_database_init(self, database):
-        assert len(database.available_buns()) == 3
-        assert len(database.available_ingredients()) == 6
-    
-    # Получение списка доступных булок
-    def test_available_buns(self, database):
+    # Проверка получения списка булок
+    def test_available_buns_returns_list_of_buns(self, database):
+        buns = database.available_buns()    
+        assert isinstance(buns, list)
+
+    # Проверка получения списка ингредиентов
+    def test_available_buns_returns_list_of_ingredients(self, database):
+        ingredients = database.available_ingredients()    
+        assert isinstance(ingredients, list)
+
+    # Проверка того, что метод возвращает ожидаемые булки
+    def test_available_buns_returns_expected_buns(self, database):
         buns = database.available_buns()
-        assert len(buns) == 3
-        assert buns[0].get_name() == "black bun"
-        assert buns[1].get_name() == "white bun"
-        assert buns[2].get_name() == "red bun"
-    
-    # Получение списка доступных ингредиентов
-    def test_available_ingredients(self, database):
+        bun_names = [bun.get_name() for bun in buns]
+        assert "black bun" in bun_names
+        assert "white bun" in bun_names
+        assert "red bun" in bun_names
+
+    # Проверка того, что метод возвращает ожидаемые ингредиенты
+    def test_available_ingredients_returns_expected_ingredients(self, database):
         ingredients = database.available_ingredients()
-        assert len(ingredients) == 6
-        assert ingredients[0].get_type() == INGREDIENT_TYPE_SAUCE
-        assert ingredients[3].get_type() == INGREDIENT_TYPE_FILLING
+        ingredient_names = [ingredient.get_name() for ingredient in ingredients]
+        expected_names = [
+            "hot sauce", "sour cream", "chili sauce", "cutlet", "dinosaur", "sausage"
+            ]
+        for expected_name in expected_names:
+            assert expected_name in ingredient_names
+
+
+
+
+
+
+
+
+
+
+
+
+    # Проверка наличия в полученном списке тех булок, которые сейчас есть в БД
+    @pytest.mark.parametrize("index, expected_name, expected_price", [
+        (0, "black bun", 100),
+        (1, "white bun", 200),
+        (2, "red bun", 300)
+    ])
+    def test_available_buns_returns_correct_bun_by_index(self, database, index, expected_name, expected_price):
+        buns = database.available_buns()
+        assert buns[index].get_name() == expected_name
+        assert buns[index].get_price() == expected_price
 
 
 
@@ -58,14 +103,12 @@ class TestBurger:
         burger.set_buns(bun_mock)
         assert burger.bun == bun_mock
     
-
     # Добавление ингредиента
     def test_add_ingredient(self, burger, ingredient_mock):
 
         burger.add_ingredient(ingredient_mock)
         assert len(burger.ingredients) == 1
         assert burger.ingredients[0] == ingredient_mock
-    
 
     # Удаление ингредиента
     def test_remove_ingredient(self, burger, ingredient_mock):
@@ -106,38 +149,44 @@ class TestBurger:
         burger.add_ingredient(ingredient_mock)
         receipt = burger.get_receipt()
         # Проверка содержимого чека
-        assert '(==== Каменная булка ====)' in receipt
-        assert '= sauce Тестовый соус =' in receipt
+        assert f'(==== {STONE_BUN['name']} ====)' in receipt
+        assert f'= sauce {TEST_SAUCE['name']} =' in receipt
         assert 'Price: 2050' in receipt
     
 
 
 class TestIngredient:
     
-    # Создание ингредиента с параметризацией
+    # Получение типа ингредиента
     @pytest.mark.parametrize("ingredient_type, name, price", [
-        (INGREDIENT_TYPE_SAUCE, "Кетчунез", 70),
-        (INGREDIENT_TYPE_SAUCE, "Сладкий чили", 80),
-        (INGREDIENT_TYPE_FILLING, "Котлета", 950),
-        (INGREDIENT_TYPE_FILLING, "Огурчики", 40)
+        (TEST_INGREDIENT_1['type'], TEST_INGREDIENT_1['name'], TEST_INGREDIENT_1['price']),
+        (TEST_INGREDIENT_2['type'], TEST_INGREDIENT_2['name'], TEST_INGREDIENT_2['price']),
     ])
-    def test_ingredient_create(self, ingredient_type, name, price):
+    def test_ingredient_get_type(self, ingredient_type, name, price):
 
         ingredient = Ingredient(ingredient_type, name, price)
         assert ingredient.get_type() == ingredient_type
-        assert ingredient.get_name() == name
-        assert ingredient.get_price() == price
     
     # Получение цены ингредиента
-    def test_ingredient_get_price(self, ingredient):
-        assert ingredient.get_price() == 99
+    @pytest.mark.parametrize("ingredient_type, name, price", [
+        (TEST_INGREDIENT_1['type'], TEST_INGREDIENT_1['name'], TEST_INGREDIENT_1['price']),
+        (TEST_INGREDIENT_2['type'], TEST_INGREDIENT_2['name'], TEST_INGREDIENT_2['price']),
+    ])
+    def test_ingredient_get_price(self, ingredient_type, name, price):
 
+        ingredient = Ingredient(ingredient_type, name, price)
+        assert ingredient.get_price() == price
+    
     # Получение названия ингредиента
-    def test_ingredient_get_name(self, ingredient):
-        assert ingredient.get_name() == "Острый соус"
+    @pytest.mark.parametrize("ingredient_type, name, price", [
+        (TEST_INGREDIENT_1['type'], TEST_INGREDIENT_1['name'], TEST_INGREDIENT_1['price']),
+        (TEST_INGREDIENT_2['type'], TEST_INGREDIENT_2['name'], TEST_INGREDIENT_2['price']),
+    ])
+    def test_ingredient_get_name(self, ingredient_type, name, price):
 
-    # Получение типа ингредиента
-    def test_ingredient_get_type(self, ingredient):
-        assert ingredient.get_type() == INGREDIENT_TYPE_SAUCE
+        ingredient = Ingredient(ingredient_type, name, price)
+        assert ingredient.get_name() == name
+    
+
 
 
