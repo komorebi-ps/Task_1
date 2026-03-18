@@ -1,16 +1,11 @@
 import pytest
 from praktikum.bun import Bun
-from praktikum.burger import Burger
 from praktikum.ingredient import Ingredient
-from praktikum.database import Database
-from praktikum.ingredient_types import INGREDIENT_TYPE_SAUCE, INGREDIENT_TYPE_FILLING
 from unittest.mock import Mock, patch
 from data import (
-    SPICY_SAUCE, 
     TEST_FILLING, 
     TEST_SAUCE, 
     STONE_BUN, 
-    BLACK_BUN,
     TEST_BUN_1,
     TEST_BUN_2,
     TEST_BUN_3,
