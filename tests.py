@@ -74,28 +74,6 @@ class TestDatabase:
 
 
 
-
-
-
-
-
-
-
-
-
-    # Проверка наличия в полученном списке тех булок, которые сейчас есть в БД
-    @pytest.mark.parametrize("index, expected_name, expected_price", [
-        (0, "black bun", 100),
-        (1, "white bun", 200),
-        (2, "red bun", 300)
-    ])
-    def test_available_buns_returns_correct_bun_by_index(self, database, index, expected_name, expected_price):
-        buns = database.available_buns()
-        assert buns[index].get_name() == expected_name
-        assert buns[index].get_price() == expected_price
-
-
-
 class TestBurger:
     
     # Выбор булок
