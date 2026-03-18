@@ -114,14 +114,16 @@ class TestBurger:
         burger.set_buns(bun_mock)
         burger.add_ingredient(ingredient_mock)
         burger.add_ingredient(ingredient_mock_filling)
-        # (1000 * 2) + 50 + 750 = 2800
-        assert burger.get_price() == 2800
+        # рассчитываем цену через переменные
+        expected_price = (STONE_BUN['price'] * 2) + TEST_SAUCE['price'] + TEST_FILLING['price']
+        assert burger.get_price() == expected_price
     
     # Получение чека
     @patch('praktikum.burger.Burger.get_price')
     def test_get_receipt(self, mock_get_price, burger, bun_mock, ingredient_mock):
-
-        mock_get_price.return_value = 2050  # (1000 * 2) + 50 = 2050
+        # рассчитываем цену через переменные
+        expected_price = (STONE_BUN['price'] * 2) + TEST_SAUCE['price']
+        mock_get_price.return_value = expected_price
         # Сборка бургера
         burger.set_buns(bun_mock)
         burger.add_ingredient(ingredient_mock)
@@ -129,7 +131,7 @@ class TestBurger:
         # Проверка содержимого чека
         assert f'(==== {STONE_BUN['name']} ====)' in receipt
         assert f'= sauce {TEST_SAUCE['name']} =' in receipt
-        assert 'Price: 2050' in receipt
+        assert f'Price: {expected_price}' in receipt
     
 
 
